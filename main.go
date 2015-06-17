@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -13,11 +14,15 @@ import (
 
 var (
 	writeChan = make(chan []byte, 100)
+
+	mudAddr = flag.String("addr", "imperian.com:23", "address [host:port] of the MUD server to connect to")
 )
 
 func main() {
+	flag.Parse()
+
 	conn := telnet.New()
-	err := conn.Dial("tcp", "imperian.com:23")
+	err := conn.Dial("tcp", *mudAddr)
 	if err != nil {
 		log.Println(err)
 	}
