@@ -7,7 +7,10 @@ import (
 )
 
 var (
-	deadHandler = errors.New("Handler unresponsive.")
+	// ErrDeadHandler is returned whenever an unresponsive handler is accesssed.
+	// When you receive this error, it is safe to assume that the Handler will not
+	// be given any further messages. Because it won't be.
+	ErrDeadHandler = errors.New("Handler unresponsive.")
 )
 
 // Handler will handle an out-of-band (IAC + ...) command event
@@ -43,7 +46,7 @@ func (r *handlerRunner) send(msg []byte) error {
 
 	default:
 		close(r.msgChan)
-		return deadHandler
+		return ErrDeadHandler
 	}
 }
 
@@ -88,10 +91,13 @@ func (h *politeClientHandler) Handle(msg []byte) {
 		// Yes, yes we will GMCP
 		h.conn.SendCommand(DO, GMCP)
 		h.sendGMCP(`Core.Hello {"client": "gmudc", "version": "0.0.2"}`)
-		h.sendGMCP(`Core.Supports.Set [ "Char 1", "Char.Skills 1", "Char.Items 1", "Comm.Channel 1", "Room 1", "IRE.Rift 1"]`)
+		h.sendGMCP(`Core.Supports.Set [ "Char 1", "Char.Skills 1", "Char.Items 1", "Comm.Channel 1", "Room 1", "IRE.Rift 1" ]`)
 	}
 }
 
+// GMCPHandler is the interface that needs to be implemented for anything that
+// wishes to act upon IAC SB GMCP messages. This will most likely change very
+// shortly.
 type GMCPHandler interface {
 	HandleGMCP(string, []byte)
 }

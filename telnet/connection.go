@@ -6,6 +6,9 @@ import (
 	"sync"
 )
 
+// Connection represents a connection and supporting actors. This object keeps
+// track of all handlers and performs the necessary stream interception required
+// to perform fancy things like triggers and aliases.
 type Connection struct {
 	conn      net.Conn
 	processor *tnProcessor
@@ -34,6 +37,8 @@ func (t *Connection) AddHandler(h Handler) {
 	t.handlers = append(t.handlers, runner)
 }
 
+// Dial will attempt to make a connection to the type/address specific
+// eg: conn.Dial("tcp", "somewhere.com:23")
 func (t *Connection) Dial(network string, url string) error {
 	c, err := net.Dial(network, url)
 	if err != nil {
@@ -45,6 +50,8 @@ func (t *Connection) Dial(network string, url string) error {
 	return nil
 }
 
+// New creates a new instance with appropriately initialized private fields.
+// Create a Connection without using New() at your own risk!
 func New() *Connection {
 	tc := &Connection{
 		processor: newTelnetProcessor(),
@@ -54,10 +61,12 @@ func New() *Connection {
 	return tc
 }
 
+// Connection implements the io.Writer interface.
 func (t *Connection) Write(b []byte) (int, error) {
 	return t.conn.Write(b)
 }
 
+// Connection implements the io.Reader interface.
 func (t *Connection) Read(b []byte) (int, error) {
 	cb := make([]byte, 1024)
 	n, err := t.conn.Read(cb)
@@ -69,11 +78,13 @@ func (t *Connection) Read(b []byte) (int, error) {
 	return t.processor.Read(b)
 }
 
+// Close closes the underlying net.Conn
 func (t *Connection) Close() error {
 	return t.conn.Close()
 }
 
-// Sends a command (series of tnSeq) such as conn.SendCommand(telnet.WILL, telnet.GMCP).
+// SendCommand formats and sends a command (series of tnSeq) to the server.
+// eg: conn.SendCommand(telnet.WILL, telnet.GMCP).
 // IAC is prefixed already, so there's no need to prepend it.
 func (t *Connection) SendCommand(command ...tnSeq) {
 	t.conn.Write(buildCommand(command...))

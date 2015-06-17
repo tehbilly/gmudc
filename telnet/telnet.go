@@ -42,7 +42,7 @@ func bToSeq(b byte) tnSeq {
 }
 
 const (
-	NUL  tnSeq = 0x00 // NULL, noop
+	NUL  tnSeq = 0x00 // NUL, no operation
 	ECHO tnSeq = 0x01 // Echo
 	SGA  tnSeq = 0x03 // Suppress 'Go Ahead'
 	ST   tnSeq = 0x05 // Status
@@ -71,8 +71,8 @@ const (
 	EL   tnSeq = 0xF8 // Erase line
 	GA   tnSeq = 0xF9 // Go ahead
 	SB   tnSeq = 0xFA // Start of subnegotiation
-	WILL tnSeq = 0xFB
-	WONT tnSeq = 0xFC
+	WILL tnSeq = 0xFB // Express interest/desire in next sequence
+	WONT tnSeq = 0xFC // Express disinterest/unwillingness to do the next sequence
 	DO   tnSeq = 0xFD
 	DONT tnSeq = 0xFE
 	IAC  tnSeq = 0xFF // Interpret As Command
